@@ -14,8 +14,8 @@ psapi    = WinDLL('psapi.dll', use_last_error=True)
                                                                 # https://msdn.microsoft.com/en-us/library/windows/desktop/aa379261(v=vs.85).aspx
 class LUID(Structure):                                         # typedef struct _LUID
      _fields_ = [				               # {
-		 ('LowPart', DWORD),                           # DWORD LowPart;
-                 ('HighPart', LONG)                            # LONG  HighPart;
+		('LowPart', DWORD),                            # DWORD LowPart;
+                ('HighPart', LONG)                             # LONG  HighPart;
 	        ]			                       # }
 
 # The LUID_AND_ATTRIBUTES structure represents a locally unique identifier (LUID) and its attributes.
