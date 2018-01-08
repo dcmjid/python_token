@@ -200,7 +200,19 @@ PROCESS_TERMINATE                   = 0x0001 # Required to terminate a process u
 PROCESS_VM_OPERATION                = 0x0008 # Required to perform an operation on the address space of a process = see VirtualProtectEx and WriteProcessMemory #.
 PROCESS_VM_READ                     = 0x0010 # Required to read memory in a process using ReadProcessMemory.
 PROCESS_VM_WRITE                    = 0x0020 # Required to write to memory in a process using WriteProcessMemory.
-PROCESS_ALL_ACCESS = (PROCESS_CREATE_PROCESS | PROCESS_CREATE_THREAD | PROCESS_DUP_HANDLE | PROCESS_QUERY_INFORMATION | PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_SET_INFORMATION | PROCESS_SET_QUOTA | PROCESS_SUSPEND_RESUME | PROCESS_TERMINATE | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | SYNCHRONIZE)
+PROCESS_ALL_ACCESS                  = (PROCESS_CREATE_PROCESS
+                                     | PROCESS_CREATE_THREAD
+                                     | PROCESS_DUP_HANDLE
+                                     | PROCESS_QUERY_INFORMATION
+                                     | PROCESS_QUERY_LIMITED_INFORMATION
+                                     | PROCESS_SET_INFORMATION
+                                     | PROCESS_SET_QUOTA
+                                     | PROCESS_SUSPEND_RESUME
+                                     | PROCESS_TERMINATE
+                                     | PROCESS_VM_OPERATION
+                                     | PROCESS_VM_READ
+                                     | PROCESS_VM_WRITE
+                                     | SYNCHRONIZE)
 
 # Process creation flags | https://msdn.microsoft.com/en-us/library/windows/desktop/ms684863(v=vs.85).aspx
 CREATE_NEW_CONSOLE                  = 0x00000010 # The new process has a new console, instead of inheriting its parent's console (the default).
@@ -448,19 +460,19 @@ def get_script_dir(follow_symlinks=True):
 
 def ntshell():
      while True:
-          DWORD_array    = (DWORD *  0xffff)
+          DWORD_array    = (DWORD *  0xFFFF)
           ProcessIds     = DWORD_array()
           ProcessIdsSize = sizeof(ProcessIds)
-          BytesReturned  = DWORD()
+          BytesReturned  = DWORD()                                       # https://msdn.microsoft.com/en-us/library/windows/desktop/ms682623(v=vs.85).aspx 
           if EnumProcesses(
                            ProcessIds,                                   # _Out_     pProcessIds           A pointer to an array that receives the list of process identifiers.
                            ProcessIdsSize,                               # _In_      cb                    The size of the pProcessIds array, in bytes.
                            BytesReturned):                               # _Out_     pBytesReturned        The number of bytes returned in the pProcessIds array.
                if BytesReturned.value < ProcessIdsSize:
                  break
-
-     for index in range(BytesReturned.value / sizeof(DWORD)):
-         ProcessId = ProcessIds[index]
+     RunningProcesses = BytesReturned.value / sizeof(DWORD)
+     for process in range(RunningProcesses):
+         ProcessId = ProcessIds[process]
          hProcess = OpenProcess(
                            PROCESS_QUERY_LIMITED_INFORMATION,            # _In_      dwDesiredAccess       The access to the process object. This access right is checked against the security descriptor for the process. If the caller has enabled the SeDebugPrivilege privilege, the requested access is granted regardless of the contents of the security descriptor.
                            False,                                        # _In_      bInheritHandle        If this value is TRUE, processes created by this process will inherit the handle. Otherwise, the processes do not inherit this handle.
